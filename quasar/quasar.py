@@ -1,20 +1,20 @@
 # Quasar: an ultralight python-2.7/python-3.X quantum simulator package
 # Copyright (C) 2019 Robert Parrish
-# 
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-# 
+#
 # Contact:
 # Robert Parrish
 # robparrish@gmail.com
@@ -30,13 +30,13 @@ We use the standard QIS qubit order of Nielsen and Chuang, where the qubits are
 ordered from left to right in the ket, i.e., |0123>. For instance, the circuit:
 
 T   : |0|
-         
+
 |0> : -H-
-         
+
 |1> : ---
-         
+
 |2> : ---
-         
+
 |3> : ---
 
 T   : |0|
@@ -66,7 +66,7 @@ class Matrix(object):
     Chuang, *except* that rotation matrices are specfied in full turns:
 
         Rz(theta) = exp(-i*theta*Z)
-    
+
     whereas Nielsen and Chuang define these in half turns:
 
         Rz^NC(theta) = exp(-i*theta*Z/2)
@@ -149,12 +149,12 @@ class Matrix(object):
         c = np.cos(theta)
         s = np.sin(theta)
         return np.array([[c-1.j*s, 0.0], [0.0, c+1.j*s]], dtype=np.complex128)
-    
+
 # => Gate class <= #
 
 class Gate(object):
 
-    """ Class Gate represents a general N-body quantum gate. 
+    """ Class Gate represents a general N-body quantum gate.
 
     An N-body quantum gate applies a unitary operator to the state of a subset
     of N qubits, with an implicit identity matrix acting on the remaining
@@ -196,7 +196,7 @@ class Gate(object):
                 each active qubit of the gate, for use in generating textual diagrams, e.g.,
                 ['@', 'X'] for CNOT.
         """
-        
+
         self.N = N
         self.Ufun = Ufun
         self.params = params
@@ -205,7 +205,7 @@ class Gate(object):
 
         # Validity checks
         if not isinstance(self.N, int): raise RuntimeError('N must be int')
-        if self.N <= 0: raise RuntimeError('N <= 0') 
+        if self.N <= 0: raise RuntimeError('N <= 0')
         if self.U.shape != (2**self.N,)*2: raise RuntimeError('U must be shape (2**N,)*2')
         if not isinstance(self.params, collections.OrderedDict): raise RuntimeError('params must be collections.OrderedDict')
         if not all(isinstance(_, str) for _ in list(self.params.keys())): raise RuntimeError('params keys must all be str')
@@ -218,10 +218,10 @@ class Gate(object):
     def __str__(self):
         """ String representation of this Gate (self.name) """
         return self.name
-    
+
     @property
-    def U(self): 
-        """ The (2**N,)*2 unitary matrix underlying this Gate. 
+    def U(self):
+        """ The (2**N,)*2 unitary matrix underlying this Gate.
 
         The action of the gate on a given state is given graphically as,
 
@@ -238,26 +238,26 @@ class Gate(object):
         return self.Ufun(self.params)
 
     # > Copying < #
-    
+
     def copy(self):
-        """ Make a deep copy of the current Gate. 
-        
+        """ Make a deep copy of the current Gate.
+
         Returns:
             (Gate) - a copy of this Gate whose parameters may be modified
                 without modifying the parameters of self.
         """
         return Gate(
-            N=self.N, 
-            Ufun=self.Ufun, 
-            params=self.params.copy(), 
-            name=self.name,  
+            N=self.N,
+            Ufun=self.Ufun,
+            params=self.params.copy(),
+            name=self.name,
             ascii_symbols=self.ascii_symbols,
             )
 
     # > Parameter Access < #
 
     def set_param(self, key, param):
-        """ Set the value of a parameter of this Gate. 
+        """ Set the value of a parameter of this Gate.
 
         Params:
             key (str) - the key of the parameter
@@ -406,13 +406,13 @@ Gate.SWAP = Gate(
 def _GateRx(theta):
 
     """ Rx (theta) = exp(-i * theta * x) """
-    
+
     def Ufun(params):
         theta = params['theta']
         c = np.cos(theta)
         s = np.sin(theta)
         return np.array([[c, -1.j*s], [-1.j*s, c]], dtype=np.complex128)
-    
+
     return Gate(
         N=1,
         Ufun=Ufun,
@@ -420,12 +420,12 @@ def _GateRx(theta):
         name='Rx',
         ascii_symbols=['Rx'],
         )
-    
+
 @staticmethod
 def _GateRy(theta):
 
     """ Ry (theta) = exp(-i * theta * Y) """
-    
+
     def Ufun(params):
         theta = params['theta']
         c = np.cos(theta)
@@ -439,12 +439,12 @@ def _GateRy(theta):
         name='Ry',
         ascii_symbols=['Ry'],
         )
-    
+
 @staticmethod
 def _GateRz(theta):
 
     """ Rz (theta) = exp(-i * theta * Z) """
-    
+
     def Ufun(params):
         theta = params['theta']
         c = np.cos(theta)
@@ -458,7 +458,7 @@ def _GateRz(theta):
         name='Rz',
         ascii_symbols=['Rz'],
         )
-    
+
 Gate.Rx = _GateRx
 Gate.Ry = _GateRy
 Gate.Rz = _GateRz
@@ -467,7 +467,7 @@ Gate.Rz = _GateRz
 
 @staticmethod
 def _GateSO4(A, B, C, D, E, F):
-    
+
     def Ufun(params):
         A = params['A']
         B = params['B']
@@ -497,7 +497,7 @@ Gate.SO4 = _GateSO4
 
 @staticmethod
 def _GateSO42(thetaIY, thetaYI, thetaXY, thetaYX, thetaZY, thetaYZ):
-    
+
     def Ufun(params):
         A = -(params['thetaIY'] + params['thetaZY'])
         F = -(params['thetaIY'] - params['thetaZY'])
@@ -536,7 +536,7 @@ Gate.SO42 = _GateSO42
 def _CF(theta):
 
     """ Controlled F gate """
-    
+
     def Ufun(params):
         theta = params['theta']
         c = np.cos(theta)
@@ -547,7 +547,7 @@ def _CF(theta):
             [0.0, 0.0,  +c,  +s],
             [0.0, 0.0,  +s,  -c],
             ], dtype=np.complex128)
-    
+
     return Gate(
         N=2,
         Ufun=Ufun,
@@ -604,12 +604,12 @@ class Circuit(object):
         >>> circuit.add_gate(T=0, key=(1,), Gate.X)
         >>> circuit.add_gate(T=1, key=(0,1), Gate.CNOT)
         >>> print(circuit)
-        
+
         A Circuit is always constructed with a fixed number of qubits N, but
         the time window of the circuit is freely expandable from T=0 onward.
         The Circuit starts empty, and is filled one gate at a time by the
         add_gate function.
-    
+
         The Circuit attribute Ts (list of int) contains the sorted list of time
         indices T with significant gates, and the Circuit attribute nmoment
         (int) contains the total number of time moments, including empty
@@ -635,7 +635,7 @@ class Circuit(object):
         self.N = N
         # All circuits must have at least one qubit
         if self.N <= 0: raise RuntimeError('N <= 0')
-    
+
         # Primary circuit data structure
         self.gates = collections.OrderedDict() # (T, (A, [B], [C], ...)) -> Gate
         # Memoization
@@ -678,7 +678,7 @@ class Circuit(object):
         Params:
             T (int) - the time index to add the gate at
             key (int or tuple of int) - the qubit index or indices to add the gate at
-            gate (Gate) - the gate to add 
+            gate (Gate) - the gate to add
         Result:
             self is updated with the added gate. Checks are performed to ensure
                 that the addition is valid.
@@ -698,7 +698,7 @@ class Circuit(object):
         if len(key2) != gate.N: raise RuntimeError('%d key entries provided for %d-body gate' % (len(key2), gate.N))
         # Check that the requested circuit locations are open
         for A in key2:
-            if (T,A) in self.TAs: 
+            if (T,A) in self.TAs:
                 raise RuntimeError('T=%d, A=%d circuit location is already occupied' % (T,A))
             if A >= self.N:
                 raise RuntimeError('No qubit location %d' % A)
@@ -769,7 +769,7 @@ class Circuit(object):
                 [0,1,2,...] in the returned circuit.
             copy (bool) - copy Gate elements to remove parameter dependencies
                 between self and returned circuit (True - default) or not
-                (False). 
+                (False).
         Returns:
             (Circuit) - the time-sliced circuit.
         """
@@ -791,23 +791,23 @@ class Circuit(object):
         ):
 
         """ Concatenate a list of Circuits in time.
-        
+
         Params:
             circuits (list of Circuit) - the ordered list of Circuit objects to
                 concatenate in time.
             copy (bool) - copy Gate elements to remove parameter dependencies
                 between circuits and returned circuit (True - default) or not
-                (False). 
+                (False).
         Returns:
             (Circuit) - the time-concatenated circuit.
         """
 
-        if any(x.N != circuits[0].N for x in circuits): 
+        if any(x.N != circuits[0].N for x in circuits):
             raise RuntimeError('Circuits must all have same N to be concatenated')
-        
+
         circuit = Circuit(N=circuits[0].N)
         Tstart = 0
-        for circuit2 in circuits:   
+        for circuit2 in circuits:
             for key, gate in circuit2.gates.items():
                 T, key2 = key
                 circuit.add_gate(T=T+Tstart, key=key2, gate=gate.copy() if copy else gate)
@@ -827,7 +827,7 @@ class Circuit(object):
                 indices into the [0,1,2...] indices in the returned circuit.
             copy (bool) - copy Gate elements to remove parameter dependencies
                 between self and returned circuit (True - default) or not
-                (False). 
+                (False).
         Returns:
             (Circuit) - the qubit-sliced circuit.
         """
@@ -851,25 +851,25 @@ class Circuit(object):
         ):
 
         """ Adjoin a list of Circuits in spatial qubit indices.
-        
+
         Params:
             circuits (list of Circuit) - the ordered list of Circuit objects to
                 adjoin in spatial qubit indices.
             copy (bool) - copy Gate elements to remove parameter dependencies
                 between circuits and returned circuit (True - default) or not
-                (False). 
+                (False).
         Returns:
             (Circuit) - the spatially qubit-adjoined circuit.
         """
         circuit = Circuit(N=sum(x.N for x in circuits))
         Astart = 0
-        for circuit2 in circuits:   
+        for circuit2 in circuits:
             for key, gate in circuit2.gates.items():
                 T, key2 = key
                 circuit.add_gate(T=T, key=tuple(x + Astart for x in key2), gate=gate.copy() if copy else gate)
             Astart += circuit2.N
         return circuit
-    
+
     def reversed(
         self,
         copy=True,
@@ -883,7 +883,7 @@ class Circuit(object):
         Params:
             copy (bool) - copy Gate elements to remove parameter dependencies
                 between self and returned circuit (True - default) or not
-                (False). 
+                (False).
         Returns:
             (Circuit) - the reversed circuit.
         """
@@ -904,7 +904,7 @@ class Circuit(object):
         Params:
             copy (bool) - copy Gate elements to remove parameter dependencies
                 between self and returned circuit (True - default) or not
-                (False). 
+                (False).
         Returns:
             (Circuit) - the time-dense circuit.
         """
@@ -987,7 +987,7 @@ class Circuit(object):
             else:
                 raise RuntimeError("N > 2")
         circuit2 = Circuit(N=self.N)
-        jammed_gates = {}                 
+        jammed_gates = {}
         for key, gate in circuit1.gates.items():
             if gate.N != 2: continue
             T, key2 = key
@@ -1020,7 +1020,7 @@ class Circuit(object):
                 U = np.dot(np.kron(np.eye(2), gate1.U), U)
                 jammed_gates[T2, (B,)] = gate1
             circuit2.add_gate(T=T, key=key2, gate=Gate.U2(U=U))
-        # Unjammed gates (should all be 1-body on 1-body wires) 
+        # Unjammed gates (should all be 1-body on 1-body wires)
         for key, gate in circuit1.gates.items():
             if gate.N != 1: continue
             T, key2 = key
@@ -1093,10 +1093,10 @@ class Circuit(object):
                 keys.append((T, key2, name))
         keys.sort(key = lambda x : (x[0], x[1]))
         return keys
-        
+
     @property
     def param_values(self):
-        """ A list of param values corresponding to param_keys for all mutable parameters in the circuit. 
+        """ A list of param values corresponding to param_keys for all mutable parameters in the circuit.
 
         Returns:
             (list of float) - ordered parameter values with order corresponding
@@ -1122,16 +1122,16 @@ class Circuit(object):
         for k, v in zip(self.param_keys, values):
             T, key, name = k
             self.gates[(T, key)].set_param(key=name, param=v)
-    
+
     @property
     def params(self):
-        """ An OrderedDict of (T, key, param_name) : param_value for all mutable parameters in the circuit. 
+        """ An OrderedDict of (T, key, param_name) : param_value for all mutable parameters in the circuit.
             The order follows that of param_keys.
 
         Returns:
             (OrderedDict of (int, tuple of int, str) : float) - ordered key :
                 value pairs for all mutable parameters in the circuit.
-        """ 
+        """
         return collections.OrderedDict([(k, v) for k, v in zip(self.param_keys, self.param_values)])
 
     def set_params(
@@ -1140,7 +1140,7 @@ class Circuit(object):
         ):
 
         """ Set an arbitrary number of circuit parameters values by key, value specification.
-    
+
         Params:
             params (OrderedDict of (int, tuple of int, str) : float) - key :
                 value pairs for mutable parameters to set.
@@ -1148,7 +1148,7 @@ class Circuit(object):
         Result:
             Parameters of self.gates are updated with new parameter values.
         """
-    
+
         for k, v in params.items():
             T, key2, name = k
             self.gates[(T, key2)].set_param(key=name, param=v)
@@ -1158,11 +1158,11 @@ class Circuit(object):
         """ A human-readable string describing the circuit coordinates,
             parameter names, gate names, and values of all mutable parameters in
             this circuit.
-        
+
         Returns:
             (str) - human-readable string describing parameters in order
                 specified by param_keys.
-        """ 
+        """
         s = ''
         s += '%-5s %-10s %-10s %-10s: %24s\n' % ('T', 'Qubits', 'Name', 'Gate', 'Value')
         for k, v in self.params.items():
@@ -1190,7 +1190,7 @@ class Circuit(object):
         Params:
             time_lines (str) - specification of time lines:
                 "both" - time lines on top and bottom (default)
-                "top" - time lines on top 
+                "top" - time lines on top
                 "bottom" - time lines on bottom
                 "neither" - no time lines
         Returns:
@@ -1200,7 +1200,7 @@ class Circuit(object):
         # Left side states
         Wd = int(np.ceil(np.log10(self.N)))
         lstick = '%-*s : |\n' % (2+Wd, 'T')
-        for x in range(self.N): 
+        for x in range(self.N):
             lstick += '%*s\n' % (6+Wd, ' ')
             lstick += '|%*d> : -\n' % (Wd, x)
 
@@ -1231,7 +1231,7 @@ class Circuit(object):
             lines = lines[2:-2]
         else:
             raise RuntimeError('Invalid time_lines argument: %s' % time_lines)
-        
+
         strval = '\n'.join(lines)
 
         return strval
@@ -1291,14 +1291,14 @@ class Circuit(object):
 
         # + [1] for the - null character
         wseconds = [max([len(v) for k, v in second.items()] + [1]) for second in seconds]
-        wtot = sum(wseconds)    
+        wtot = sum(wseconds)
 
         # Adjust widths for T field
         Tsymb = '%d' % T
         if adjust_for_T:
             if wtot < len(Tsymb): wseconds[0] += len(Tsymb) - wtot
-            wtot = sum(wseconds)    
-        
+            wtot = sum(wseconds)
+
         Is = ['' for A in range(self.N)]
         Qs = ['' for A in range(self.N)]
         for second, second2, wsecond in zip(seconds, seconds2, wseconds):
@@ -1310,7 +1310,7 @@ class Circuit(object):
                 QwR = wsecond - len(Qsymb)
                 Qs[A] += Qsymb + '-' * QwR + '-'
 
-        strval = Tsymb + ' ' * (wtot + len(wseconds) - len(Tsymb) - 1) + '|\n' 
+        strval = Tsymb + ' ' * (wtot + len(wseconds) - len(Tsymb) - 1) + '|\n'
         for I, Q in zip(Is, Qs):
             strval += I + '\n'
             strval += Q + '\n'
@@ -1325,14 +1325,14 @@ class Circuit(object):
         use_lstick=True,
         ):
 
-        """ Returns a LaTeX Qcircuit diagram specification as an ASCII string. 
+        """ Returns a LaTeX Qcircuit diagram specification as an ASCII string.
 
         Params:
             row_params (str) - Qcircuit row layout specification
             col_params (str) - Qcircuit col layout specification
             size_params (str) - Qcircuit size layout specification
             use_lstick (bool) - put lstick kets in (True) or not (False)
-        Returns:    
+        Returns:
             (str) - LaTeX Qcircuit diagram specification as an ASCII string.
         """
 
@@ -1348,7 +1348,7 @@ class Circuit(object):
         # Qubit lines
         lines = ['' for _ in range(self.N)]
 
-        # Lstick  
+        # Lstick
         if use_lstick:
             for A in range(self.N):
                 lines[A] += '\\lstick{|%d\\rangle}\n' % A
@@ -1356,13 +1356,13 @@ class Circuit(object):
         # Moment contents
         for T in range(self.nmoment):
             lines2 = self.latex_diagram_moment(
-                T=T,    
+                T=T,
                 one_body_printing=one_body_printing,
                 variable_printing=variable_printing,
                 )
             for A in range(self.N):
                 lines[A] += lines2[A]
-        
+
         # Trailing wires
         for A in range(self.N):
             lines[A] += ' & \\qw \\\\\n'
@@ -1413,13 +1413,13 @@ class Circuit(object):
                 A, B = key2
                 # Special cases
                 if gate.name == 'CNOT' or gate.name == 'CX':
-                    seconds[idx][A] = ' & \\ctrl{%d}\n' % (B-A) 
+                    seconds[idx][A] = ' & \\ctrl{%d}\n' % (B-A)
                     seconds[idx][B] = ' & \\targ\n'
                 elif gate.name == 'CZ':
-                    seconds[idx][A] = ' & \\ctrl{%d}\n' % (B-A) 
+                    seconds[idx][A] = ' & \\ctrl{%d}\n' % (B-A)
                     seconds[idx][B] = ' & \\gate{Z}\n'
                 elif gate.name == 'SWAP':
-                    seconds[idx][A] = ' & \\qswap \\qwx[%d]\n' % (B-A) 
+                    seconds[idx][A] = ' & \\qswap \\qwx[%d]\n' % (B-A)
                     seconds[idx][B] = ' & \\qswap\n'
                 # General case
                 else:
@@ -1443,7 +1443,7 @@ class Circuit(object):
         dtype=np.complex128,
         ):
 
-        """ Propagate wavefunction wfn through this circuit. 
+        """ Propagate wavefunction wfn through this circuit.
 
         Params:
             wfn (np.ndarray of shape (2**self.N,) or None)
@@ -1479,7 +1479,7 @@ class Circuit(object):
             moment at a time.
 
         This is often used as:
-        
+
         for T, wfn1 in simulate_steps(wfn=wfn0):
             print wfn1
 
@@ -1590,7 +1590,7 @@ class Circuit(object):
 
         L = 2**(A)     # Left hangover
         R = 2**(N-A-1) # Right hangover
-        wfn1v = wfn1.view() 
+        wfn1v = wfn1.view()
         wfn2v = wfn2.view()
         wfn1v.shape = (L,2,R)
         wfn2v.shape = (L,2,R)
@@ -1658,7 +1658,7 @@ class Circuit(object):
         L = 2**(A2)      # Left hangover
         M = 2**(B2-A2-1) # Middle hangover
         R = 2**(N-B2-1)  # Right hangover
-        wfn1v = wfn1.view() 
+        wfn1v = wfn1.view()
         wfn2v = wfn2.view()
         wfn1v.shape = (L,2,M,2,R)
         wfn2v.shape = (L,2,M,2,R)
@@ -1673,12 +1673,12 @@ class Circuit(object):
         A,
         ):
 
-        """ Compute the 1pdm (one-particle density matrix) at qubit A. 
+        """ Compute the 1pdm (one-particle density matrix) at qubit A.
 
         The 1pdm is formally defined as,
 
             D_ij = \sum_{L,R} wfn1_LiR^* wfn2_LjR
-        
+
         Here L are the indices of all of the qubits to the left of A (<A), and
         R are the indices of all of the qubits to the right of A (>A).
 
@@ -1702,7 +1702,7 @@ class Circuit(object):
 
         L = 2**(A)     # Left hangover
         R = 2**(N-A-1) # Right hangover
-        wfn1v = wfn1.view() 
+        wfn1v = wfn1.view()
         wfn2v = wfn2.view()
         wfn1v.shape = (L,2,R)
         wfn2v.shape = (L,2,R)
@@ -1717,7 +1717,7 @@ class Circuit(object):
         B,
         ):
 
-        """ Compute the 2pdm (two-particle density matrix) at qubits A and B. 
+        """ Compute the 2pdm (two-particle density matrix) at qubits A and B.
 
         The formal operation performed is (for the case that A < B),
 
@@ -1740,7 +1740,7 @@ class Circuit(object):
             A (int) - the index of the first qubit to evaluate the 2pdm at
             B (int) - the index of the second qubit to evaluate the 2pdm at
         Returns:
-            (np.ndarray of shape (4,4) and complex dtype) - the 2pdm in the 
+            (np.ndarray of shape (4,4) and complex dtype) - the 2pdm in the
                 |A> otimes |B> basis.
         """
 
@@ -1759,12 +1759,12 @@ class Circuit(object):
         L = 2**(A2)      # Left hangover
         M = 2**(B2-A2-1) # Middle hangover
         R = 2**(N-B2-1)  # Right hangover
-        wfn1v = wfn1.view() 
+        wfn1v = wfn1.view()
         wfn2v = wfn2.view()
         wfn1v.shape = (L,2,M,2,R)
         wfn2v.shape = (L,2,M,2,R)
         D = np.einsum('LiMjR,LkMlR->ijkl', wfn1v.conj(), wfn2v)
-    
+
         if A > B:
             D = np.einsum('ijkl->jilk', D)
 
@@ -1846,4 +1846,3 @@ class Circuit(object):
                 G[A,B] = np.sum(np.kron(PA, PB).conj() * D).real
 
         return G
-

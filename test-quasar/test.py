@@ -3,7 +3,7 @@ import collections
 import numpy as np
 
 def reference_matrices():
-    
+
     """ OrderedDict of known matrices """
 
     matrices = collections.OrderedDict()
@@ -16,7 +16,7 @@ def reference_matrices():
     matrices['H'] = 1.0 / np.sqrt(2.0) * np.array([[1.0, 1.0], [1.0, -1.0]])
     matrices['Rx2'] = 1.0 / np.sqrt(2.0) * np.array([[1.0, 1.0j], [1.0j, 1.0]])
     matrices['Rx2T'] = matrices['Rx2'].conj()
-    
+
     for A in ['I', 'X', 'Y', 'Z']:
         for B in ['I', 'X', 'Y', 'Z']:
             matrices[A + B] = np.kron(matrices[A], matrices[B])
@@ -46,7 +46,7 @@ def reference_matrices():
         [0.0, 0.0, 0.0, 1.0],
         ])
     return matrices
-     
+
 def test_matrix():
 
     """ Test explicit matrix definitions in Matrix """
@@ -72,7 +72,7 @@ def test_matrix():
 
     # Return True if all tests passed else False
     return all(x[1] for x in list(checks.values()))
-    
+
 def test_explicit_gates():
 
     """ Test explicit gates """
@@ -80,7 +80,7 @@ def test_explicit_gates():
     refs = reference_matrices()
 
     gates = collections.OrderedDict()
-    for key in ['I', 'X', 'Y', 'Z', 'S', 'T', 'H', 'Rx2', 'Rx2T']: 
+    for key in ['I', 'X', 'Y', 'Z', 'S', 'T', 'H', 'Rx2', 'Rx2T']:
         gates[key] = (1, refs[key], key, [key])
     gates['CX'] = (2, refs['CX'], 'CNOT', ['@', 'X'])
     gates['CNOT'] = (2, refs['CX'], 'CNOT', ['@', 'X'])
@@ -98,7 +98,7 @@ def test_explicit_gates():
             gate.ascii_symbols == val[3],
             len(gate.params) == 0,
             )
-    
+
     # Print out detailed test results
     print('Test Explicit Gates: (N, U, name, ascii_symbols, params)')
     for key, value in checks.items():
@@ -118,20 +118,20 @@ def test_gates():
 def test_ghz_5():
 
     circuit = quasar.Circuit(N=5)
-    circuit.add_gate(T=0, key=0, gate=quasar.Gate.H)   
+    circuit.add_gate(T=0, key=0, gate=quasar.Gate.H)
     circuit.add_gate(T=1, key=(0,1), gate=quasar.Gate.CNOT)
     circuit.add_gate(T=2, key=(1,2), gate=quasar.Gate.CNOT)
     circuit.add_gate(T=3, key=(2,3), gate=quasar.Gate.CNOT)
-    circuit.add_gate(T=4, key=3, gate=quasar.Gate.H)   
-    circuit.add_gate(T=4, key=4, gate=quasar.Gate.H)   
+    circuit.add_gate(T=4, key=3, gate=quasar.Gate.H)
+    circuit.add_gate(T=4, key=4, gate=quasar.Gate.H)
     circuit.add_gate(T=5, key=(4,3), gate=quasar.Gate.CNOT)
-    circuit.add_gate(T=6, key=3, gate=quasar.Gate.H)   
-    circuit.add_gate(T=6, key=4, gate=quasar.Gate.H)   
+    circuit.add_gate(T=6, key=3, gate=quasar.Gate.H)
+    circuit.add_gate(T=6, key=4, gate=quasar.Gate.H)
 
     print(circuit)
 
     print(circuit.compressed())
-    
+
     print(circuit.Ts)
 
 def test_linear_4():
@@ -141,12 +141,11 @@ def test_linear_4():
     circuit.add_gate(T=1, key=(3,0), gate=quasar.Gate.SO4(A=0.0, B=0.0, C=0.0, D=0.0, E=0.0, F=0.0))
     circuit.add_gate(T=0, key=(0,1), gate=quasar.Gate.SO4(A=0.0, B=0.0, C=0.0, D=0.0, E=0.0, F=0.0))
     circuit.add_gate(T=0, key=(2,3), gate=quasar.Gate.SO4(A=0.0, B=0.0, C=0.0, D=0.0, E=0.0, F=0.0))
-    print(circuit) 
+    print(circuit)
     print(circuit.param_str)
-        
+
 
 if __name__ == '__main__':
-    
+
     test_matrix()
     test_explicit_gates()
-
